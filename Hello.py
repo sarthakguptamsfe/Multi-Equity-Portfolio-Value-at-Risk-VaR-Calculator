@@ -87,3 +87,10 @@ if st.button("Calculate VaR"):
         st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: {var:.2f}")
     else:
         st.write("Failed to fetch stock data. Please check your inputs and try again.")
+
+# If the menu is created using Streamlit's sidebar functionality
+menu_selection = st.sidebar.selectbox(
+    "Choose a demo",
+    ["Hello", "Animation Demo", "Plotting Demo", "Mapping Demo", "DataFrame Demo"]
+)
+
