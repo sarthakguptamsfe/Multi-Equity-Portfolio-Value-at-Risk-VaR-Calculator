@@ -1,51 +1,85 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import streamlit as st
-from streamlit.logger import get_logger
+import numpy as np
+import matplotlib.pyplot as plt
+import requests
 
-LOGGER = get_logger(__name__)
+# Step 1: Import necessary libraries
+def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
+    try:
+        response = requests.get(f"https://financialmodelingprep.com/api/v3/historical-price-full/{stock_name}?from={start_date}&to={end_date}&apikey={API_KEY}")
+        data = response.json()
+        if 'historical' not in data or not data['historical']:
+            st.error("No data available for the selected dates. Please choose another date range.")
+            return None
+        else:
+            return [day['close'] for day in data['historical']]
+    except Exception as e:
+        st.error(f"Error fetching stock data: {str(e)}")
+        return None
 
+# Step 2: Create a basic Streamlit app layout
+st.title("Value at Risk (VaR) Calculator")
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+# Step 3: Add input fields for stock name, start date, and end date
+stock_name = st.text_input("Enter Stock Name:")
+start_date = st.date_input("Select Start Date:")
+end_date = st.date_input("Select End Date:")
 
-    st.write("# Welcome to Streamlit! 👋")
+# API key (Note: Store API keys securely)
+API_KEY = '0uTB4phKEr4dHcB2zJMmVmKUcywpkxDQ'
 
-    st.sidebar.success("Select a demo above.")
+# Step 5: Calculate basic statistics of the fetched stock data
+def calculate_statistics(stock_data):
+    returns = np.diff(stock_data) / stock_data[:-1]
+    average_return = np.mean(returns)
+    std_deviation = np.std(returns)
+    return returns, average_return, std_deviation
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+# Step 6: Data Visualization - Line Plot
+def plot_returns(returns):
+    plt.figure(figsize=(10, 6))
+    plt.plot(returns)
+    plt.title("Stock Returns Over Time")
+    plt.xlabel("Days")
+    plt.ylabel("Returns")
+    plt.grid(True)
+    return plt
 
+# Step 7: Add dropdown menu for selecting VaR method
+var_methods = ["Historical", "Variance-Covariance", "Monte Carlo"]
+selected_method = st.selectbox("Select VaR Method:", var_methods)
 
-if __name__ == "__main__":
-    run()
+# Step 8: VaR Calculation for each method
+def calculate_var(returns, confidence_level):
+    if selected_method == "Historical":
+        var = np.percentile(returns, 100 - confidence_level)
+    elif selected_method == "Variance-Covariance":
+        mean = np.mean(returns)
+        sigma = np.sqrt(np.var(returns))
+        norm_percentile = np.percentile(np.random.normal(mean, sigma, 10000), 100 - confidence_level)
+        var = mean - norm_percentile
+    elif selected_method == "Monte Carlo":
+        simulations = 10000
+        returns_simulations = np.random.choice(returns, (simulations, len(returns)), replace=True)
+        sorted_returns = np.sort(returns_simulations, axis=0)
+        var = np.mean(sorted_returns[int(simulations * (1 - confidence_level / 100)), :])
+    return var
+
+# Step 9: Display VaR based on selected method
+if st.button("Calculate VaR"):
+    stock_data = fetch_stock_data(stock_name, start_date.isoformat(), end_date.isoformat(), API_KEY)
+    if stock_data:
+        returns, average_return, std_deviation = calculate_statistics(stock_data)
+        st.write("Basic Statistics:")
+        st.write(f"Average Return: {average_return:.4f}")
+        st.write(f"Standard Deviation: {std_deviation:.4f}")
+        
+        st.write("Data Visualization:")
+        plt = plot_returns(returns)
+        st.pyplot(plt)
+        
+        confidence_level = st.slider("Select Confidence Level:", 1, 99, 95)
+        var = calculate_var(returns, confidence_level)
+        st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: {var:.2f}")
+    else:
+        st.write("Failed to fetch stock data. Please check your inputs and try again.")
