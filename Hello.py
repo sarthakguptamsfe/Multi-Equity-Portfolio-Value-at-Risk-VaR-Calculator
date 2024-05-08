@@ -21,12 +21,14 @@ def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
 st.title("Value at Risk (VaR) Calculator")
 
 # Step 3: Add input fields for stock name, start date, and end date
-stock_name = st.text_input("Enter Stock Name:")
+stock_name = st.text_input("Enter Stock Name: for ex, META for facebook, AAPL for apple.")
 start_date = st.date_input("Select Start Date:")
 end_date = st.date_input("Select End Date:")
 
 # API key (Note: Store API keys securely)
 API_KEY = '0uTB4phKEr4dHcB2zJMmVmKUcywpkxDQ'
+
+import scipy.stats as stats
 
 # Step 5: Calculate basic statistics of the fetched stock data
 def calculate_statistics(stock_data):
@@ -49,21 +51,24 @@ def plot_returns(returns):
 var_methods = ["Historical", "Variance-Covariance", "Monte Carlo"]
 selected_method = st.selectbox("Select VaR Method:", var_methods)
 
+# Adjust the position of the confidence level slider
+confidence_level = st.slider("Select Confidence Level:", 1, 99, 95)
+
 # Step 8: VaR Calculation for each method
 def calculate_var(returns, confidence_level):
     if selected_method == "Historical":
-        var = np.percentile(returns, 100 - confidence_level)
+        return np.percentile(returns, 100 - confidence_level)
     elif selected_method == "Variance-Covariance":
         mean = np.mean(returns)
-        sigma = np.sqrt(np.var(returns))
-        norm_percentile = np.percentile(np.random.normal(mean, sigma, 10000), 100 - confidence_level)
-        var = mean - norm_percentile
+        sigma = np.std(returns)
+        z_score = stats.norm.ppf(1 - confidence_level/100)
+        return -(mean - sigma * z_score)
     elif selected_method == "Monte Carlo":
-        simulations = 10000
-        returns_simulations = np.random.choice(returns, (simulations, len(returns)), replace=True)
-        sorted_returns = np.sort(returns_simulations, axis=0)
-        var = np.mean(sorted_returns[int(simulations * (1 - confidence_level / 100)), :])
-    return var
+        simulations = 100000
+        simulated_returns = np.random.normal(np.mean(returns), np.std(returns), (simulations, len(returns)))
+        simulated_returns_sorted = np.sort(simulated_returns, axis=1)
+        return np.percentile(simulated_returns_sorted, 100 - confidence_level, axis=0)[-1]
+    return None
 
 # Step 9: Display VaR based on selected method
 if st.button("Calculate VaR"):
@@ -78,7 +83,6 @@ if st.button("Calculate VaR"):
         plt = plot_returns(returns)
         st.pyplot(plt)
         
-        confidence_level = st.slider("Select Confidence Level:", 1, 99, 95)
         var = calculate_var(returns, confidence_level)
         st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: {var:.2f}")
     else:
