@@ -73,7 +73,7 @@ import scipy.stats as stats
 # Function to plot returns
 def plot_returns(returns):
     plt.figure(figsize=(10, 6))
-    plt.plot(returns, label='Portfolio Returns', color= 'red')
+    plt.plot(returns, label='Portfolio Returns', color= 'ff4c4c')
     plt.title("Portfolio Returns Over Time")
     plt.xlabel("Days")
     plt.ylabel("Returns")
