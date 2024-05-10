@@ -92,7 +92,7 @@ def calculate_var(returns, confidence_level, method):
         z_score = -(stats.norm.ppf(1 - confidence_level / 100))
         return -(mean + z_score * sigma)
     elif method == "Monte Carlo":
-        simulations = 100000
+        simulations = 10000
         mean = np.mean(returns)
         sigma = np.std(returns)
         simulated_returns = np.random.normal(mean, sigma, simulations)
