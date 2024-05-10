@@ -19,7 +19,7 @@ def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
     except Exception as e:
         return None, f"Error fetching stock data: {str(e)}"
 
-
+#h
 
 image_url = "https://i.postimg.cc/jd3b7X91/Screenshot-2024-05-10-at-12-33-02-AM.png"
 st.image(image_url, use_column_width=True)
