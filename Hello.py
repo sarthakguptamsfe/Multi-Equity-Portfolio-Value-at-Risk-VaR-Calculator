@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import requests
+import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 st.set_page_config(page_title="Multiple-Equity Portfolio Value at Risk (VaR) Calculator")
 
@@ -17,10 +19,15 @@ def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
     except Exception as e:
         return None, f"Error fetching stock data: {str(e)}"
 
+
+
 image_url = "https://i.postimg.cc/jd3b7X91/Screenshot-2024-05-10-at-12-33-02-AM.png"
 st.image(image_url, use_column_width=True)
 
 API_KEY = '0uTB4phKEr4dHcB2zJMmVmKUcywpkxDQ'  # API key for data fetching
+
+# Input field for initial portfolio value
+portfolio_value = st.number_input("Enter Initial Portfolio Value (in USD):", min_value=0.0, value=100000.0, step=1000.0, format="%.2f")
 
 # Input fields for the number of stocks, their names, and weights
 n = st.slider("Select number of stocks (up to 10):", 1, 10, 1)
@@ -66,14 +73,10 @@ if st.button("Fetch Data and Calculate Statistics"):
             st.success("Data fetched and statistics calculated successfully.")
         else:
             st.error("Failed to fetch data for one or more stocks.")
-
-import matplotlib.pyplot as plt
-import scipy.stats as stats
-
 # Function to plot returns
 def plot_returns(returns):
     plt.figure(figsize=(10, 6))
-    plt.plot(returns, label='Portfolio Returns', color= '#ff4c4c')
+    plt.plot(returns, label='Portfolio Returns', color='#ff4c4c')
     plt.title("Portfolio Returns Over Time")
     plt.xlabel("Days")
     plt.ylabel("Returns")
@@ -83,20 +86,22 @@ def plot_returns(returns):
     st.pyplot(plt)  # Show the plot in the Streamlit app
 
 # VaR Calculation functions
-def calculate_var(returns, confidence_level, method):
+def calculate_var(returns, confidence_level, method, portfolio_value):
     if method == "Historical":
-        return np.percentile(returns, 100 - confidence_level)
+        var = np.percentile(returns, 100 - confidence_level)
     elif method == "Variance-Covariance":
         mean = np.mean(returns)
         sigma = np.std(returns)
         z_score = -(stats.norm.ppf(1 - confidence_level / 100))
-        return -(mean + z_score * sigma)
+        var = -(mean + z_score * sigma)
     elif method == "Monte Carlo":
         simulations = 10000
         mean = np.mean(returns)
         sigma = np.std(returns)
         simulated_returns = np.random.normal(mean, sigma, simulations)
-        return -(np.percentile(simulated_returns, 100 - confidence_level))
+        var = -(np.percentile(simulated_returns, 100 - confidence_level))
+
+    return var * portfolio_value  # Scale the VaR by the portfolio value
 
 # Selection inputs for VaR calculation
 var_methods = ["Historical", "Variance-Covariance", "Monte Carlo"]
@@ -110,8 +115,7 @@ if st.button("Calculate VaR"):
         plot_returns(st.session_state['portfolio_returns'])
 
         # Calculating VaR
-        var = calculate_var(st.session_state['portfolio_returns'], confidence_level, selected_method)
-        st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: {var:.2f}")
+        var = calculate_var(st.session_state['portfolio_returns'], confidence_level, selected_method, portfolio_value)
+        st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: ${var:.2f}")
     else:
         st.error("No portfolio data to calculate VaR. Please fetch data first.")
-
