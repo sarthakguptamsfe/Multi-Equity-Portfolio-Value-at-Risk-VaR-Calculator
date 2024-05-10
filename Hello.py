@@ -15,7 +15,7 @@ def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
     except Exception as e:
         return None, f"Error fetching stock data: {str(e)}"
 
-st.title("Multi-Asset Value at Risk (VaR) Calculator")
+st.title("Multi-Asset (Equities) Value at Risk (VaR) Calculator")
 API_KEY = '0uTB4phKEr4dHcB2zJMmVmKUcywpkxDQ'  # API key for data fetching
 
 # Input fields for the number of stocks, their names, and weights
