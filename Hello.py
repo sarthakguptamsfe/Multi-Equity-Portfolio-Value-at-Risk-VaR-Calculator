@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import requests
 
-st.set_page_config(page_title="Multiple- Equity Portfolio Value at Risk (VaR) Calculator")
+st.set_page_config(page_title="Multiple-Equity Portfolio Value at Risk (VaR) Calculator")
 
 # Function to fetch stock data
 def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
@@ -36,6 +36,9 @@ for i in range(n):
     stock_names.append(name)
     weights.append(weight)
 
+total_weight = sum(weights)
+st.write(f"Total Weight: {total_weight}%")  # Display the total weight dynamically
+
 start_date = st.date_input("Select Start Date:")
 end_date = st.date_input("Select End Date:")
 
@@ -45,7 +48,6 @@ if 'portfolio_returns' not in st.session_state:
 
 # Fetch data button
 if st.button("Fetch Data and Calculate Statistics"):
-    total_weight = sum(weights)
     if total_weight != 100:
         st.error("Total weight must be exactly 100%. Please adjust the weights.")
     else:
@@ -64,6 +66,7 @@ if st.button("Fetch Data and Calculate Statistics"):
             st.success("Data fetched and statistics calculated successfully.")
         else:
             st.error("Failed to fetch data for one or more stocks.")
+
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
