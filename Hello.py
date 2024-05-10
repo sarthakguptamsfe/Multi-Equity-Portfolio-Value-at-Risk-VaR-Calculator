@@ -99,8 +99,8 @@ def calculate_var(returns, confidence_level, method, portfolio_value):
         mean = np.mean(returns)
         sigma = np.std(returns)
         simulated_returns = np.random.normal(mean, sigma, simulations)
-        var = -(np.percentile(simulated_returns, 100 - confidence_level))
-
+        a = -(np.percentile(simulated_returns, 100 - confidence_level))
+        var= -(a)
     return var * portfolio_value  # Scale the VaR by the portfolio value
 
 # Selection inputs for VaR calculation
