@@ -2,6 +2,8 @@ import streamlit as st
 import numpy as np
 import requests
 
+st.set_page_config(page_title="Quantitative Finance: Value at Risk (VaR) for Multiple Equities Portfolio ")
+
 # Function to fetch stock data
 def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
     url = f"https://financialmodelingprep.com/api/v3/historical-price-full/{stock_name}?from={start_date}&to={end_date}&apikey={API_KEY}"
@@ -15,7 +17,7 @@ def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
     except Exception as e:
         return None, f"Error fetching stock data: {str(e)}"
 
-image_url = "https://i.postimg.cc/4y27hcpT/Screenshot-2024-05-10-at-12-25-26-AM.png"
+image_url = "https://i.postimg.cc/jd3b7X91/Screenshot-2024-05-10-at-12-33-02-AM.png"
 st.image(image_url, use_column_width=True)
 
 API_KEY = '0uTB4phKEr4dHcB2zJMmVmKUcywpkxDQ'  # API key for data fetching
