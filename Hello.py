@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import requests
 
-st.set_page_config(page_title="Quantitative Finance: Value at Risk (VaR) for Multiple Equities Portfolio ")
+st.set_page_config(page_title="Multiple- Equity Portfolio Value at Risk (VaR) Calculator")
 
 # Function to fetch stock data
 def fetch_stock_data(stock_name, start_date, end_date, API_KEY):
