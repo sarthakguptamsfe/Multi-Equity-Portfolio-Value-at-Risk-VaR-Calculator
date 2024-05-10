@@ -107,3 +107,4 @@ if st.button("Calculate VaR"):
         st.write(f"Value at Risk (VaR) at {confidence_level}% confidence level using {selected_method} method: {var:.2f}")
     else:
         st.error("No portfolio data to calculate VaR. Please fetch data first.")
+
