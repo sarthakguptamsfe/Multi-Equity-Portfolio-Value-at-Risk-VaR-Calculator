@@ -106,7 +106,7 @@ def calculate_var(returns, confidence_level, method, portfolio_value):
 # Selection inputs for VaR calculation
 var_methods = ["Historical", "Variance-Covariance", "Monte Carlo"]
 selected_method = st.selectbox("Select VaR Method:", var_methods)
-confidence_level = st.slider("Select Confidence Level:", 0.0, 99.0, 95.0, 0.5, format="%.1f")
+confidence_level = st.slider("Select Confidence Level:", 0.0, 99.0, 97.5, 0.5, format="%.1f")
 
 # Button to trigger VaR calculation
 if st.button("Calculate VaR"):
