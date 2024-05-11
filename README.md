@@ -1,5 +1,5 @@
-# Multiple-Equity Portfolio Value at Risk (VaR) Calculator 
-Link: https://valueatriskmethod.streamlit.app/
+# [Multiple-Equity Portfolio Value at Risk (VaR) Calculator](https://valueatriskmethod.streamlit.app/)
+
 
 ## Overview
 The Multiple-Equity Portfolio Value at Risk (VaR) Calculator is an interactive, web-based tool designed for financial analysts, portfolio managers, and investment enthusiasts. This application allows users to dynamically assess the risk associated with a portfolio composed of various stocks, providing insights into potential financial exposure under adverse market conditions.
